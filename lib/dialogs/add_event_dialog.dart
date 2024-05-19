@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../auth_state.dart';
 
+// non vengono fatti controlli sulle date
 class AddEventDialog extends StatefulWidget {
-  const AddEventDialog({super.key});
+  const AddEventDialog({super.key, required this.notifyParent});
+
+  final Function() notifyParent;
 
   @override
   State<AddEventDialog> createState() => _AddEventDialogState();
@@ -63,7 +67,12 @@ class _AddEventDialogState extends State<AddEventDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.white,
       alignment: Alignment.bottomCenter,
@@ -87,12 +96,12 @@ class _AddEventDialogState extends State<AddEventDialog> {
                 ),
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 40),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: TextFormField(
                 controller: _titleController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Titolo',
                 ),
                 validator: (value) {
@@ -103,9 +112,9 @@ class _AddEventDialogState extends State<AddEventDialog> {
                 },
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 15),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: TextFormField(
                 controller: _descriptionController,
                 decoration: const InputDecoration(
@@ -124,7 +133,7 @@ class _AddEventDialogState extends State<AddEventDialog> {
             //        START DATE TIME
             // =======================================
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30),
+              padding: const EdgeInsets.symmetric(horizontal: 30),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -137,38 +146,46 @@ class _AddEventDialogState extends State<AddEventDialog> {
                   ),
                   Row(
                     children: [
-                      OutlinedButton(
-                        onPressed: () async {
+                      InkWell(
+                        onTap: () async {
                           startDate = await _showDatePicker(context, startDate);
                           setState(() {});
                         },
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 15),
-                        ),
-                        child: Text(
-                          "${startDate.day} / ${startDate.month} / ${startDate.year}",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
-                            color: Colors.black38,
+                        borderRadius: BorderRadius.circular(10),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 5,
+                            horizontal: 10,
+                          ),
+                          child: Text(
+                            "${startDate.day} / ${startDate.month} / ${startDate.year}",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 18,
+                              color: Colors.black38,
+                            ),
                           ),
                         ),
                       ),
                       const SizedBox(width: 10),
-                      OutlinedButton(
-                        onPressed: () async {
+                      InkWell(
+                        onTap: () async {
                           startTime = await _showTimePicker(context, startTime);
                           setState(() {});
                         },
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 15),
-                        ),
-                        child: Text(
-                          "${startTime.hour} : ${startTime.minute}",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
-                            color: Colors.black38,
+                        borderRadius: BorderRadius.circular(10),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 5,
+                            horizontal: 10,
+                          ),
+                          child: Text(
+                            "${startTime.hour} : ${startTime.minute}",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 18,
+                              color: Colors.black38,
+                            ),
                           ),
                         ),
                       ),
@@ -177,12 +194,12 @@ class _AddEventDialogState extends State<AddEventDialog> {
                 ],
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 5),
             // =======================================
             //        END DATE TIME
             // =======================================
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30),
+              padding: const EdgeInsets.symmetric(horizontal: 30),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -195,38 +212,46 @@ class _AddEventDialogState extends State<AddEventDialog> {
                   ),
                   Row(
                     children: [
-                      OutlinedButton(
-                        onPressed: () async {
+                      InkWell(
+                        onTap: () async {
                           endDate = await _showDatePicker(context, endDate);
                           setState(() {});
                         },
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 15),
-                        ),
-                        child: Text(
-                          "${endDate.day} / ${endDate.month} / ${endDate.year}",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
-                            color: Colors.black38,
+                        borderRadius: BorderRadius.circular(10),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 5,
+                            horizontal: 10,
+                          ),
+                          child: Text(
+                            "${endDate.day} / ${endDate.month} / ${endDate.year}",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 18,
+                              color: Colors.black38,
+                            ),
                           ),
                         ),
                       ),
                       const SizedBox(width: 10),
-                      OutlinedButton(
-                        onPressed: () async {
+                      InkWell(
+                        onTap: () async {
                           endTime = await _showTimePicker(context, endTime);
                           setState(() {});
                         },
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 15),
-                        ),
-                        child: Text(
-                          "${endTime.hour} : ${endTime.minute}",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
-                            color: Colors.black38,
+                        borderRadius: BorderRadius.circular(10),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 5,
+                            horizontal: 10,
+                          ),
+                          child: Text(
+                            "${endTime.hour} : ${endTime.minute}",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 18,
+                              color: Colors.black38,
+                            ),
                           ),
                         ),
                       ),
@@ -235,6 +260,7 @@ class _AddEventDialogState extends State<AddEventDialog> {
                 ],
               ),
             ),
+            const SizedBox(height: 15),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -245,7 +271,7 @@ class _AddEventDialogState extends State<AddEventDialog> {
                       if (_formKey.currentState!.validate()) {
                         final authState =
                             Provider.of<AuthState>(context, listen: false);
-        
+
                         String title = _titleController.text;
                         String description = _descriptionController.text;
                         DateTime dateTimeStart = DateTime(
@@ -255,7 +281,7 @@ class _AddEventDialogState extends State<AddEventDialog> {
                           startTime.hour,
                           startTime.minute,
                         );
-        
+
                         DateTime dateTimeEnd = DateTime(
                           endDate.year,
                           endDate.month,
@@ -263,16 +289,26 @@ class _AddEventDialogState extends State<AddEventDialog> {
                           endTime.hour,
                           endTime.minute,
                         );
-        
-                        authState.addEvent(title, description, dateTimeStart,
-                            dateTimeEnd, context);
+
+                        context.pop();
+                        authState
+                            .addEvent(
+                              title,
+                              description,
+                              dateTimeStart,
+                              dateTimeEnd,
+                              context,
+                            )
+                            .then(
+                              (value) => widget.notifyParent(),
+                            );
                       }
                     },
                     style: IconButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 61, 61, 61),
                       padding: const EdgeInsets.all(15),
                     ),
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.check,
                       color: Colors.white,
                       size: 30,

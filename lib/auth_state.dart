@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
+import 'package:http/http.dart';
 
 class AuthState with ChangeNotifier {
   bool _isLoggedIn = false;
-  bool _isLoading = false; // Aggiungi lo stato di caricamento
+  bool _isLoading = false;
   bool get isLoggedIn => _isLoggedIn;
-  bool get isLoading => _isLoading; // Getter per lo stato di caricamento
+  bool get isLoading => _isLoading;
 
   final _storage = const FlutterSecureStorage();
 
@@ -29,25 +29,15 @@ class AuthState with ChangeNotifier {
 
   void register(
       String name, String email, String password, BuildContext context) async {
-    _setLoading(true);
-    final url = Uri.parse('http://51.20.8.36/api/register');
-    final headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    };
-
     final body = {
       'name': name,
       'email': email,
       'password': password,
     };
 
-    final jsonBody = jsonEncode(body);
-
-    final response = await http.post(url, headers: headers, body: jsonBody);
+    final response = await makeHttpRequest('register', {}, body, 'post');
     final jsonResponse = jsonDecode(response.body);
     String msg = jsonResponse['message'];
-    _setLoading(false);
     if (!context.mounted) return;
 
     if (response.statusCode == 201) {
@@ -63,24 +53,13 @@ class AuthState with ChangeNotifier {
   }
 
   void login(String email, String password, BuildContext context) async {
-    _setLoading(true);
-    final url = Uri.parse('http://51.20.8.36/api/login');
-    final headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    };
-
     final body = {
       'email': email,
       'password': password,
     };
 
-    final jsonBody = jsonEncode(body);
-
-    final response = await http.post(url, headers: headers, body: jsonBody);
+    final response = await makeHttpRequest('login', {}, body, 'post');
     final jsonResponse = jsonDecode(response.body);
-    String msg = jsonResponse['message'];
-    _setLoading(false);
     if (!context.mounted) return;
 
     if (response.statusCode == 201) {
@@ -90,45 +69,33 @@ class AuthState with ChangeNotifier {
       context.go('/');
     }
 
-    _showSnackBar(msg, context);
+    if (!context.mounted) return;
+    _showSnackBar(jsonResponse['message'], context);
   }
 
   void logout(BuildContext context) async {
     _setLoading(true);
     String? accessToken = await _getAccessToken();
-    final url = Uri.parse('http://51.20.8.36/api/logout');
     final headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
       'Authorization': 'Bearer $accessToken',
     };
 
-    final response = await http.post(url, headers: headers);
+    final response = await makeHttpRequest('logout', headers, {}, 'post');
     final jsonResponse = jsonDecode(response.body);
-    String msg = jsonResponse['message'];
-    _setLoading(false);
     if (!context.mounted) return;
 
-    if (response.statusCode == 201) {
-      _isLoggedIn = false;
-      context.go('/register');
-    } else {
-      _isLoggedIn = false;
-      context.go('/login');
-    }
-    _showSnackBar(msg, context);
+    _isLoggedIn = false;
+    context.go('/welcome');
+    _showSnackBar(jsonResponse['message'], context);
   }
 
   Future<List> getAllEvents(BuildContext context) async {
     String? accessToken = await _getAccessToken();
-    final url = Uri.parse('http://51.20.8.36/api/event/all');
     final headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
       'Authorization': 'Bearer $accessToken',
     };
 
-    final response = await http.get(url, headers: headers);
+    final response = await makeHttpRequest('event/all', headers, {}, 'get');
     final jsonResponse = jsonDecode(response.body);
     if (response.statusCode == 201) {
       print("2");
@@ -141,10 +108,14 @@ class AuthState with ChangeNotifier {
     return [];
   }
 
-  void addEvent(String title, String description, DateTime dateTimeStart,
-      DateTime dateTimeEnd, BuildContext context) async {
+  Future<bool> addEvent(
+    String title,
+    String description,
+    DateTime dateTimeStart,
+    DateTime dateTimeEnd,
+    BuildContext context,
+  ) async {
     String? accessToken = await _getAccessToken();
-    final url = Uri.parse('http://51.20.8.36/api/event/add');
     final headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -158,26 +129,25 @@ class AuthState with ChangeNotifier {
       'date_time_end': dateTimeEnd.toIso8601String(),
     };
 
-    print(body);
+    final response = await makeHttpRequest('event/add', headers, body, 'post');
 
-    final jsonBody = jsonEncode(body);
-
-    _setLoading(true);
-    final response = await http.post(url, headers: headers, body: jsonBody);
-    _setLoading(false);
-    if (!context.mounted) return;
+    if (!context.mounted) return true;
     final jsonResponse = jsonDecode(response.body);
     String msg = jsonResponse['message'];
     _showSnackBar(msg, context);
+    return true;
   }
 
-  void editEvent(String title, String description, DateTime dateTimeStart,
-      DateTime dateTimeEnd, BuildContext context, int id) async {
+  Future<bool> editEvent(
+    String title,
+    String description,
+    DateTime dateTimeStart,
+    DateTime dateTimeEnd,
+    BuildContext context,
+    int id,
+  ) async {
     String? accessToken = await _getAccessToken();
-    final url = Uri.parse('http://51.20.8.36/api/event/update/$id');
     final headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
       'Authorization': 'Bearer $accessToken',
     };
 
@@ -188,19 +158,109 @@ class AuthState with ChangeNotifier {
       'date_time_end': dateTimeEnd.toIso8601String(),
     };
 
-    final jsonBody = jsonEncode(body);
+    final response = await makeHttpRequest(
+      'event/update/$id',
+      headers,
+      body,
+      'put',
+    );
 
-    _setLoading(true);
-    final response = await http.put(url, headers: headers, body: jsonBody);
-    _setLoading(false);
-    if (!context.mounted) return;
+    if (!context.mounted) return true;
     final jsonResponse = jsonDecode(response.body);
     String msg = jsonResponse['message'];
     _showSnackBar(msg, context);
+    return true;
+  }
+
+  Future<bool> removeEvent(
+    BuildContext context,
+    int id,
+  ) async {
+    String? accessToken = await _getAccessToken();
+    final headers = {
+      'Authorization': 'Bearer $accessToken',
+    };
+
+    final response = await makeHttpRequest(
+      'event/delete/$id',
+      headers,
+      {},
+      'delete',
+    );
+
+    if (!context.mounted) return true;
+    final jsonResponse = jsonDecode(response.body);
+    String msg = jsonResponse['message'];
+    _showSnackBar(msg, context);
+    return true;
+  }
+
+  Future<Response> makeHttpRequest(
+    String route,
+    Map<String, String> iHeaders,
+    Map<String, String> iBody,
+    String method,
+  ) async {
+    Response response;
+    final url = Uri.parse('http://51.20.8.36/api/$route');
+    Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+    headers.addAll(iHeaders);
+    final body = jsonEncode(iBody);
+
+    _setLoading(true);
+    switch (method) {
+      case 'post':
+        response = await http.post(url, headers: headers, body: body);
+        break;
+      case 'get':
+        response = await http.get(url, headers: headers);
+        break;
+      case 'put':
+        response = await http.put(url, headers: headers, body: body);
+        break;
+      case 'delete':
+        response = await http.delete(url, headers: headers, body: body);
+        break;
+      default:
+        response = http.Response('{"message": "Parametro method errato"}', 400);
+    }
+    _setLoading(false);
+
+    return response;
+  }
+
+  Future<void> checkToken(BuildContext context) async {
+    String? accessToken = await _getAccessToken();
+    final headers = {
+      'Authorization': 'Bearer $accessToken',
+    };
+
+    final response = await makeHttpRequest(
+      'check-token',
+      headers,
+      {},
+      'post',
+    );
+
+    if (response.statusCode == 201) {
+      _isLoggedIn = true;
+    }
   }
 }
 
 void _showSnackBar(String msg, BuildContext context) {
-  var snackBar = SnackBar(content: Text(msg));
+  var snackBar = SnackBar(
+    content: Text(msg),
+    backgroundColor: const Color.fromRGBO(168, 126, 255, 1),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(50),
+    ),
+    behavior: SnackBarBehavior.floating,
+    duration: const Duration(seconds: 2),
+    showCloseIcon: true,
+  );
   ScaffoldMessenger.of(context).showSnackBar(snackBar);
 }

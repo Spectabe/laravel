@@ -9,9 +9,14 @@ void main() {
   runApp(const MainApp());
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends StatefulWidget {
   const MainApp({super.key});
 
+  @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -19,48 +24,64 @@ class MainApp extends StatelessWidget {
       child: Consumer<AuthState>(
         builder: (context, authState, child) {
           return MaterialApp.router(
+            themeMode: ThemeMode.light,
             theme: ThemeData(
-              floatingActionButtonTheme: FloatingActionButtonThemeData(
-                foregroundColor: Colors.white,
-                backgroundColor: const Color.fromARGB(255, 61, 61, 61),
-                shape: CircleBorder(),
-                elevation: 0.0,
-                highlightElevation: 0.0,
-              ),
-              textButtonTheme: TextButtonThemeData(
-                style: TextButton.styleFrom(
-                  foregroundColor: const Color.fromARGB(255, 61, 61, 61),
-                ),
-              ),
-              progressIndicatorTheme: const ProgressIndicatorThemeData(
-                color: const Color.fromARGB(255, 61, 61, 61),
-              ),
+              // colorScheme: const ColorScheme(
+              //   brightness: Brightness.light,
+              //   primary: Color.fromARGB(255, 255, 255, 255),
+              //   onPrimary: Color.fromARGB(255, 69, 69, 69),
+              //   secondary: Color.fromARGB(255, 255, 255, 255),
+              //   onSecondary: Color.fromARGB(255, 47, 47, 47),
+              //   error: Color.fromARGB(255, 255, 255, 255),
+              //   onError: Color.fromARGB(255, 54, 54, 54),
+              //   background: Color.fromARGB(255, 255, 255, 255),
+              //   onBackground: Color.fromARGB(255, 39, 39, 39),
+              //   surface: Color.fromARGB(255, 255, 255, 255),
+              //   onSurface: Color.fromARGB(255, 79, 79, 79),
+              // ),
               inputDecorationTheme: InputDecorationTheme(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: const BorderSide(
-                      color: Color.fromARGB(255, 219, 219, 219)),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: const BorderSide(
-                      color: Color.fromARGB(255, 219, 219, 219)),
-                ),
+                filled: false,
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                labelStyle: TextStyle(color: Colors.grey),
-                hintStyle: TextStyle(color: Colors.grey),
-              ),
-              elevatedButtonTheme: ElevatedButtonThemeData(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 61, 61, 61),
-                  foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(horizontal: 60, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(
+                    color: Color.fromRGBO(66, 66, 66, 1),
+                    width: 2.0,
                   ),
                 ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: const BorderSide(
+                    color: Color.fromRGBO(167, 167, 167, 1),
+                    width: 1.0,
+                  ),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 15.0,
+                  horizontal: 16.0,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: const BorderSide(
+                    color: Color.fromRGBO(167, 167, 167, 1),
+                    width: 1.0,
+                  ),
+                ),
+                labelStyle: const TextStyle(
+                  color: Color.fromRGBO(167, 167, 167, 1),
+                  fontSize: 16.0,
+                ),
+                hintStyle: const TextStyle(
+                  color: Colors.grey,
+                  fontSize: 14.0,
+                ),
+              ),
+              scaffoldBackgroundColor: Colors.white,
+              navigationBarTheme: const NavigationBarThemeData(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                indicatorColor: Colors.transparent,
+                surfaceTintColor: Colors.transparent,
+                labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
               ),
             ),
             localizationsDelegates: GlobalMaterialLocalizations.delegates,
@@ -73,8 +94,11 @@ class MainApp extends StatelessWidget {
                 children: [
                   child!,
                   if (authState.isLoading)
-                    const Center(
-                      child: CircularProgressIndicator(),
+                    const ColoredBox(
+                      color: Color.fromARGB(49, 129, 129, 129),
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
                     ),
                 ],
               );

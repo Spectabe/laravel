@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hopelast_flutter/auth_state.dart';
+import 'package:hopelast_flutter/widgets/black_text_button.dart';
+import 'package:hopelast_flutter/widgets/light_gray_text_button%20copy.dart';
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
@@ -29,9 +31,10 @@ class _LoginPageState extends State<LoginPage> {
         body: Form(
           key: _formKey,
           child: Padding(
-          padding: EdgeInsets.all(50),
+            padding: const EdgeInsets.all(50),
             child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 TextFormField(
                   controller: _emailController,
@@ -47,8 +50,7 @@ class _LoginPageState extends State<LoginPage> {
                     return null;
                   },
                 ),
-                              const SizedBox(height: 20),
-
+                const SizedBox(height: 15),
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
@@ -62,27 +64,25 @@ class _LoginPageState extends State<LoginPage> {
                     return null;
                   },
                 ),
-                SizedBox(height: 30),
-                ElevatedButton(
+                const SizedBox(height: 40),
+                BlackTextButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       final authState =
                           Provider.of<AuthState>(context, listen: false);
-                          
+
                       String email = _emailController.text;
                       String password = _passwordController.text;
-            
+
                       authState.login(email, password, context);
                     }
                   },
-                  child: Text('Accedi'),
+                  text: 'Accedi',
                 ),
-                TextButton(
-                  onPressed: () {
-                    Provider.of<AuthState>(context, listen: false);
-                    context.go('/register');
-                  },
-                  child: Text("Registrati"),
+                const SizedBox(height: 10),
+                LightGrayTextButton(
+                  onPressed: () => context.go('/welcome'),
+                  text: "Torna indietro",
                 ),
               ],
             ),

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hopelast_flutter/auth_state.dart';
+import 'package:hopelast_flutter/widgets/black_text_button.dart';
 import 'package:provider/provider.dart';
+
+import '../widgets/light_gray_text_button copy.dart';
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({super.key});
@@ -26,19 +29,22 @@ class _RegistrationPageState extends State<RegistrationPage> {
     super.dispose();
   }
 
+  // problema di overflow se tutti i validator restituiscono un messaggio
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Form(
         key: _formKey,
         child: Padding(
-          padding: EdgeInsets.all(50),
+          padding: const EdgeInsets.all(50),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Name',
                 ),
                 validator: (value) {
@@ -50,10 +56,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   return null;
                 },
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 15),
               TextFormField(
                 controller: _emailController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Email',
                 ),
                 validator: (value) {
@@ -61,46 +67,64 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     return 'Inserisci un\'email';
                   } else if (value.length > 254) {
                     return 'La lunghezza della mail deve essere di massimo 254 caratteri';
+                  } else if (!value.contains('@')) {
+                    return 'Mail non valida';
                   }
                   return null;
                 },
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 15),
               TextFormField(
                 controller: _passwordController,
                 obscureText: true,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Password',
+                  errorMaxLines: 2,
                 ),
                 validator: (value) {
-                  final RegExp pswRegex = RegExp(
-                      r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!.=-_@#\$&*~]).{8,}$');
-          
                   if (value!.isEmpty) {
                     return 'Inserisci una password';
                   }
-                  if (!pswRegex.hasMatch(value)) {
-                    // Michelino1#
-                    String _text = 'Passoword non valida';
-                    _text += '\nrequisiti:';
-                    _text += '\n\u2022 lunghezza minima 8 caratteri';
-                    _text += '\n\u2022 lunghezza massima 64 caratteri';
-                    _text +=
-                        '\n\u2022 almeno 1 carattere speciale ( !.=-_@#\$&*~ )';
-                    _text += '\n\u2022 almeno 1 numero';
-                    _text += '\n\u2022 almeno 1 maiuscola';
-          
-                    return _text;
+
+                  if (value.length < 8) {
+                    return 'La password deve contenere almeno 8 caratteri';
                   }
+
+                  if (value.length > 64) {
+                    return 'La password deve contenere al massimo 64 caratteri';
+                  }
+
+                  final RegExp uppercaseRegex = RegExp(r'(?=.*?[A-Z])');
+                  final RegExp lowercaseRegex = RegExp(r'(?=.*?[a-z])');
+                  final RegExp digitRegex = RegExp(r'(?=.*?[0-9])');
+                  final RegExp specialCharRegex =
+                      RegExp(r'(?=.*?[!.=-_@#\$&*~])');
+
+                  if (!uppercaseRegex.hasMatch(value)) {
+                    return 'La password deve contenere almeno una lettera maiuscola';
+                  }
+
+                  if (!lowercaseRegex.hasMatch(value)) {
+                    return 'La password deve contenere almeno una lettera minuscola';
+                  }
+
+                  if (!digitRegex.hasMatch(value)) {
+                    return 'La password deve contenere almeno un numero';
+                  }
+
+                  if (!specialCharRegex.hasMatch(value)) {
+                    return 'La password deve contenere almeno un carattere speciale ( !.=-_@#\$&*~ )';
+                  }
+
                   return null;
                 },
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 15),
               TextFormField(
                 controller: _confirmPasswordController,
                 obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'Conferma Password',
+                decoration: const InputDecoration(
+                  labelText: 'Ripeti password',
                 ),
                 validator: (value) {
                   if (value!.isEmpty) {
@@ -112,8 +136,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   return null;
                 },
               ),
-              SizedBox(height: 30),
-              ElevatedButton(
+              const SizedBox(height: 40),
+              BlackTextButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     final authState =
@@ -121,22 +145,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     String name = _nameController.text;
                     String email = _emailController.text;
                     String password = _passwordController.text;
-          
-                    print("name " + name);
-                    print("email " + email);
-                    print("password $password");
-          
+
                     authState.register(name, email, password, context);
                   }
                 },
-                child: Text('Registrazione'),
+                text: 'Crea account',
               ),
-              TextButton(
-                onPressed: () {
-                  Provider.of<AuthState>(context, listen: false);
-                  context.go('/login');
-                },
-                child: Text("Effettua accesso"),
+              const SizedBox(height: 10),
+              LightGrayTextButton(
+                onPressed: () => context.go('/welcome'),
+                text: "Torna indietro",
               ),
             ],
           ),

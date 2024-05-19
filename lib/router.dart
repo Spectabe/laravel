@@ -6,12 +6,17 @@ import 'package:provider/provider.dart';
 
 import 'pages/registration_page.dart';
 import 'pages/login_page.dart';
+import 'pages/welcome_page.dart';
 
 final GoRouter router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
       builder: (context, state) => HomePage(),
+    ),
+    GoRoute(
+      path: '/welcome',
+      builder: (context, state) => const WelcomePage(),
     ),
     GoRoute(
       path: '/register',
@@ -22,16 +27,20 @@ final GoRouter router = GoRouter(
       builder: (context, state) => const LoginPage(),
     ),
   ],
-  redirect: (BuildContext context, GoRouterState state) {
+  redirect: (BuildContext context, GoRouterState state) async {
     final authProvider = Provider.of<AuthState>(context, listen: false);
     var currentRoute = state.uri.toString();
+
+    if (!authProvider.isLoggedIn) {
+      await authProvider.checkToken(context);
+    }
 
     if (authProvider.isLoggedIn && currentRoute != '/') {
       return '/';
     } else if (!authProvider.isLoggedIn &&
         currentRoute != '/register' &&
         currentRoute != '/login') {
-      return '/register';
+      return '/welcome';
     }
 
     return null;
